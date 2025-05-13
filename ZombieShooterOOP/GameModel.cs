@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace oop
+namespace ZombieShooterOOP
 {
-    namespace oop
+    namespace ZombieShooterOOP
     {
         public class GameModel
         {
@@ -33,10 +33,11 @@ namespace oop
             public void Reset()
             {
                 PlayerHealth = 100;
-                Ammo = 10;
                 Score = 0;
+                Ammo = 10; 
                 IsGameOver = false;
             }
+
         }
     }
 
