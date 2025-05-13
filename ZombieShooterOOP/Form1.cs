@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -21,20 +21,19 @@ namespace ZombieShooterOOP
         {
             InitializeComponent();
             this.KeyPreview = true;
-            this.Load += Form1_Load;
+            this.KeyDown += KeyIsDown;
+            this.KeyUp += KeyIsUp;
+            GameTimer.Interval = 20;
+            GameTimer.Tick += MainTimerEvent;
+            GameTimer.Start();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
-
-
             for (int i = 0; i < 5; i++)
             {
                 MakeZombie();
             }
-
-
         }
 
         public void UpdateHealthBar(int health)
@@ -79,7 +78,6 @@ namespace ZombieShooterOOP
 
         private void MainTimerEvent(object sender, EventArgs e)
         {
-
             if (goLeft && player.Left > 0)
                 player.Left -= playerSpeed;
             if (goRight && player.Right < this.ClientSize.Width)
@@ -88,7 +86,6 @@ namespace ZombieShooterOOP
                 player.Top -= playerSpeed;
             if (goDown && player.Bottom < this.ClientSize.Height)
                 player.Top += playerSpeed;
-
 
             for (int i = bullets.Count - 1; i >= 0; i--)
             {
@@ -101,7 +98,6 @@ namespace ZombieShooterOOP
                 }
             }
 
-
             foreach (Enemy zombie in zombies)
             {
                 zombie.MoveTowardsPlayer(player);
@@ -110,43 +106,51 @@ namespace ZombieShooterOOP
 
         private void KeyIsDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Left)
+            switch (e.KeyCode)
             {
-                goLeft = true;
-                UpdatePlayerImage("left");
-            }
-            if (e.KeyCode == Keys.Right)
-            {
-                goRight = true;
-                UpdatePlayerImage("right");
-            }
-            if (e.KeyCode == Keys.Up)
-            {
-                goUp = true;
-                UpdatePlayerImage("up");
-            }
-            if (e.KeyCode == Keys.Down)
-            {
-                goDown = true;
-                UpdatePlayerImage("down");
-            }
-            if (e.KeyCode == Keys.Space)
-            {
-                ShootBullet(playerDirection);
+                case Keys.Left:
+                    goLeft = true;
+                    UpdatePlayerImage("left");
+                    break;
+                case Keys.Right:
+                    goRight = true;
+                    UpdatePlayerImage("right");
+                    break;
+                case Keys.Up:
+                    goUp = true;
+                    UpdatePlayerImage("up");
+                    break;
+                case Keys.Down:
+                    goDown = true;
+                    UpdatePlayerImage("down");
+                    break;
+                case Keys.Space:
+                    ShootBullet(playerDirection);
+                    break;
             }
         }
 
         private void KeyIsUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Left)
-                goLeft = false;
-            if (e.KeyCode == Keys.Right)
-                goRight = false;
-            if (e.KeyCode == Keys.Up)
-                goUp = false;
-            if (e.KeyCode == Keys.Down)
-                goDown = false;
+            switch (e.KeyCode)
+            {
+                case Keys.Left:
+                    goLeft = false;
+                    break;
+                case Keys.Right:
+                    goRight = false;
+                    break;
+                case Keys.Up:
+                    goUp = false;
+                    break;
+                case Keys.Down:
+                    goDown = false;
+                    break;
+               
+            }
+
         }
+
 
         private void ShootBullet(string direction)
         {
@@ -157,6 +161,7 @@ namespace ZombieShooterOOP
             bullet.MakeBullet(this);
             bullets.Add(bullet);
         }
+
 
         private void MakeZombie()
         {
@@ -207,7 +212,7 @@ namespace ZombieShooterOOP
 
         internal Enemy GetZombie(int x, int y)
         {
-           return CreateEnemy(x, y);
+            return CreateEnemy(x, y);
         }
     }
 }
