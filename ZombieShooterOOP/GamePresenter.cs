@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
-using oop.oop;
+using ZombieShooterOOP.ZombieShooterOOP;
+
 
 namespace ZombieShooterOOP
 {
@@ -15,6 +16,7 @@ namespace ZombieShooterOOP
         public bool GoUp { get; set; }
         public bool GoDown { get; set; }
         private string playerDirection = "down";
+        internal bool gameOver;
 
         public GamePresenter(IGameView view)
         {
@@ -60,9 +62,9 @@ namespace ZombieShooterOOP
             {
                 model.Ammo--;
                 view.UpdateAmmo(model.Ammo);
-
             }
         }
+
 
         public void AddScore(int points)
         {
