@@ -7,6 +7,7 @@ namespace ZombieShooterOOP
 {
     public partial class Form1 : Form, IGameView
     {
+        private GamePresenter presenter;
         private List<Bullet> bullets = new List<Bullet>();
         private List<Zombie> zombiesList = new List<Zombie>(); 
 
@@ -29,6 +30,7 @@ namespace ZombieShooterOOP
             GameTimer.Interval = 20;
             GameTimer.Tick += MainTimerEvent;
             GameTimer.Start();
+            presenter = new GamePresenter(this);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -49,6 +51,7 @@ namespace ZombieShooterOOP
         {
             txtAmmo.Text = "Ammo: " + ammo;
         }
+
 
         public void UpdateScore(int score)
         {
@@ -198,6 +201,14 @@ namespace ZombieShooterOOP
         public Size GetClientSize()
         {
             return this.ClientSize;
+        }
+        private void GameTimer_Tick(object sender, EventArgs e)
+        {
+            if (!presenter.gameOver)
+            {
+                presenter.MovePlayer();
+                
+            }
         }
     }
 
