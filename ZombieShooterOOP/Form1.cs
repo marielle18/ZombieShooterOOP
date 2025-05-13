@@ -2,18 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Media;
 
 namespace ZombieShooterOOP
 {
     public partial class Form1 : Form, IGameView
     {
         private List<Bullet> bullets = new List<Bullet>();
-        private List<Enemy> zombies = new List<Enemy>();
-        private string playerDirection = "up";
+        private List<Zombie> zombiesList = new List<Zombie>(); 
 
+        private string facing = "up";
+        private int playerHealth = 100;
         private bool goLeft, goRight, goUp, goDown;
-        private int playerSpeed = 5;
+        private int speed = 10;
+        private int ammo = 10;
+        private int score;
+        private Random randNum = new Random();
 
         public PictureBox Player => player;
 
@@ -38,6 +41,7 @@ namespace ZombieShooterOOP
 
         public void UpdateHealthBar(int health)
         {
+            health = Math.Max(0, Math.Min(health, healthBar.Maximum));
             healthBar.Value = health;
         }
 
@@ -53,7 +57,7 @@ namespace ZombieShooterOOP
 
         public void UpdatePlayerImage(string direction)
         {
-            playerDirection = direction;
+            facing = direction;
             switch (direction)
             {
                 case "left":
@@ -79,13 +83,13 @@ namespace ZombieShooterOOP
         private void MainTimerEvent(object sender, EventArgs e)
         {
             if (goLeft && player.Left > 0)
-                player.Left -= playerSpeed;
+                player.Left -= speed;
             if (goRight && player.Right < this.ClientSize.Width)
-                player.Left += playerSpeed;
+                player.Left += speed;
             if (goUp && player.Top > 0)
-                player.Top -= playerSpeed;
+                player.Top -= speed;
             if (goDown && player.Bottom < this.ClientSize.Height)
-                player.Top += playerSpeed;
+                player.Top += speed;
 
             for (int i = bullets.Count - 1; i >= 0; i--)
             {
@@ -98,9 +102,18 @@ namespace ZombieShooterOOP
                 }
             }
 
-            foreach (Enemy zombie in zombies)
+            
+            for (int i = zombiesList.Count - 1; i >= 0; i--)
             {
+                Zombie zombie = zombiesList[i];  
+
                 zombie.MoveTowardsPlayer(player);
+
+                if (zombie.IsDead())
+                {
+                    this.Controls.Remove(zombie.EnemyPictureBox);
+                    zombiesList.RemoveAt(i);
+                }
             }
         }
 
@@ -125,7 +138,7 @@ namespace ZombieShooterOOP
                     UpdatePlayerImage("down");
                     break;
                 case Keys.Space:
-                    ShootBullet(playerDirection);
+                    ShootBullet(facing);
                     break;
             }
         }
@@ -146,11 +159,8 @@ namespace ZombieShooterOOP
                 case Keys.Down:
                     goDown = false;
                     break;
-               
             }
-
         }
-
 
         private void ShootBullet(string direction)
         {
@@ -162,23 +172,22 @@ namespace ZombieShooterOOP
             bullets.Add(bullet);
         }
 
-
         private void MakeZombie()
         {
-            ZombiesFactory factory = new ZombiesFactory();
-            Enemy zombie = GetZombie(factory);
+            ZombieFactory factory = new ZombieFactory();
 
-            this.Controls.Add(zombie.EnemyPictureBox);
-            zombie.EnemyPictureBox.BringToFront();
-            zombies.Add(zombie);
-        }
+            Zombie zombie = (Zombie)factory.CreateEnemy(
+                randNum.Next(0, this.ClientSize.Width - 50),
+                randNum.Next(0, this.ClientSize.Height - 50)
+            );
 
-        private Enemy GetZombie(ZombiesFactory factory)
-        {
-            return factory.GetZombie(
-                            x: new Random().Next(0, this.ClientSize.Width - 50),
-                            y: new Random().Next(0, this.ClientSize.Height - 50)
-                        );
+            zombiesList.Add(zombie); 
+
+            PictureBox zombiePictureBox = zombie.EnemyPictureBox;
+            zombiePictureBox.Tag = zombie;
+
+            this.Controls.Add(zombiePictureBox);
+            zombiePictureBox.BringToFront();
         }
 
         public bool IsGameOver()
@@ -192,27 +201,4 @@ namespace ZombieShooterOOP
         }
     }
 
-    internal class ZombiesFactory
-    {
-        internal Enemy CreateEnemy(int x, int y)
-        {
-            return new Zombies(x, y)
-            {
-                Type = "Zombie",
-                Health = 100,
-                Speed = 2,
-                EnemyPictureBox = new PictureBox
-                {
-                    Location = new Point(x, y),
-                    Size = new Size(50, 50),
-                    BackColor = Color.Green
-                }
-            };
-        }
-
-        internal Enemy GetZombie(int x, int y)
-        {
-            return CreateEnemy(x, y);
-        }
-    }
 }
