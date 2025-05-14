@@ -2,74 +2,75 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-public class Bullet
+namespace ZombieShooterOOP
 {
-    public int BulletLeft { get; set; }
-    public int BulletTop { get; set; }
-    public string Direction { get; set; }
-    public Panel BulletPanel { get; set; }
-    public int Speed { get; set; } = 15;
-
-    public Bullet(int left, int top, string direction)
+    public class Bullet
     {
-        BulletLeft = left;
-        BulletTop = top;
-        Direction = direction;
+        public string Direction { get; set; }
+        public int BulletLeft { get; set; }
+        public int BulletTop { get; set; }
+        private int Speed = 20;
+        public PictureBox BulletPictureBox;  
+        private Timer BulletTimer;
 
-        BulletPanel = new Panel();
-        BulletPanel.BackColor = Color.Transparent;
-        BulletPanel.Size = new Size(10, 10);
-        BulletPanel.Left = BulletLeft;
-        BulletPanel.Top = BulletTop;
-        BulletPanel.BorderStyle = BorderStyle.None;
-
-        BulletPanel.Paint += (s, e) =>
+        public Bullet(int left, int top, string direction)
         {
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            BulletLeft = left;
+            BulletTop = top;
+            Direction = direction;
 
-
-            using (Brush glowBrush = new SolidBrush(Color.FromArgb(60, Color.Gold)))
+            BulletPictureBox = new PictureBox
             {
-                e.Graphics.FillEllipse(glowBrush, -3, -3, BulletPanel.Width + 6, BulletPanel.Height + 6);
-            }
-
-            
-            using (Brush bulletBrush = new SolidBrush(Color.Gold))
-            {
-                e.Graphics.FillEllipse(bulletBrush, 0, 0, BulletPanel.Width, BulletPanel.Height);
-            }
-        };
-    }
-
-    public void MakeBullet(Form form)
-    {
-        form.Controls.Add(BulletPanel);
-        BulletPanel.BringToFront();
-        BulletPanel.Invalidate(); 
-    }
-
-    public void Move()
-    {
-        switch (Direction)
-        {
-            case "left":
-                BulletPanel.Left -= Speed;
-                break;
-            case "right":
-                BulletPanel.Left += Speed;
-                break;
-            case "up":
-                BulletPanel.Top -= Speed;
-                break;
-            case "down":
-                BulletPanel.Top += Speed;
-                break;
+                BackColor = Color.White,
+                Size = new Size(5, 5),
+                Left = BulletLeft,
+                Top = BulletTop,
+                Tag = "bullet"
+            };
         }
+
+        
+        public void CreateBullet(Form form)
+        {
+            form.Controls.Add(BulletPictureBox); 
+
+            BulletTimer = new Timer { Interval = Speed };
+            BulletTimer.Tick += BulletTimerEvent;
+            BulletTimer.Start();
+        }
+
+ 
+        private void BulletTimerEvent(object sender, EventArgs e)
+        {
+            switch (Direction)
+            {
+                case "left":
+                    BulletPictureBox.Left -= Speed;
+                    break;
+                case "right":
+                    BulletPictureBox.Left += Speed;
+                    break;
+                case "up":
+                    BulletPictureBox.Top -= Speed;
+                    break;
+                case "down":
+                    BulletPictureBox.Top += Speed;
+                    break;
+            }
+
+
+            if (BulletPictureBox.Left < 10 || BulletPictureBox.Left > 860 || BulletPictureBox.Top < 10 || BulletPictureBox.Top > 600)
+            {
+                BulletTimer.Stop();
+                BulletTimer.Dispose();
+                BulletPictureBox.Dispose();
+                BulletTimer = null;
+                BulletPictureBox = null;
+            }
+        }
+
+        
+        public Rectangle Bounds => BulletPictureBox.Bounds;
     }
 
-    public bool IsOutOfBounds(Size clientSize)
-    {
-        return BulletPanel.Right < 0 || BulletPanel.Left > clientSize.Width ||
-               BulletPanel.Bottom < 0 || BulletPanel.Top > clientSize.Height;
-    }
 }
